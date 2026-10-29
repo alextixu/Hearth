@@ -1,0 +1,2 @@
+# 一律用 LF：deploy/ 會直接上傳到 Linux 伺服器使用
+* text=auto eol=lf

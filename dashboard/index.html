@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>爐光 Hearth</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <div class="main">
+      <header class="topbar">
+        <div class="crumb">
+          <span class="logo" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>
+          <strong>爐光</strong><span class="brand-en">Hearth</span>
+          <span class="crumb-site"><i class="dot ok" aria-hidden="true"></i>UDM SE</span>
+        </div>
+        <nav class="topnav" aria-label="主選單">
+          <a class="topnav-link" href="#overview">總覽</a>
+          <a class="topnav-link" href="#devices-section">設備</a>
+          <a class="topnav-link" href="#network-section">網路</a>
+          <a class="topnav-link" href="#clients-section">用戶端</a>
+        </nav>
+        <div class="topbar-actions">
+          <span class="pill pill-demo" title="尚未連接 Home Assistant，所有數值皆為模擬">示範模式</span>
+          <span class="clock num" id="clock"></span>
+          <button class="icon-btn" id="theme-toggle" type="button" aria-label="切換深淺色"></button>
+        </div>
+      </header>
+
+      <main class="content">
+        <section id="overview" aria-label="總覽">
+          <div class="summary" id="summary"></div>
+          <div class="panel">
+            <div class="panel-head"><h2>情境</h2></div>
+            <div class="panel-body"><div class="scene-row" id="scenes"></div></div>
+          </div>
+        </section>
+
+        <div class="columns">
+          <section class="panel" id="devices-section" aria-labelledby="devices-title">
+            <div class="panel-head">
+              <h2 id="devices-title">設備</h2>
+              <div id="device-view"></div>
+            </div>
+            <div class="tabs" id="room-tabs" role="group" aria-label="選擇房間"></div>
+            <div class="panel-body" id="devices"></div>
+          </section>
+
+          <section class="panel network" id="network-section" aria-labelledby="network-title"></section>
+        </div>
+
+        <section class="panel" id="clients-section" aria-labelledby="clients-title"></section>
+      </main>
+    </div>
+  </div>
+
+  <dialog class="dialog" id="room-dialog" aria-labelledby="room-dialog-title">
+    <form id="room-form" novalidate>
+      <div class="dialog-head"><h2 id="room-dialog-title">新增房間</h2></div>
+      <div class="dialog-body">
+        <label class="field">
+          <span>房間名稱</span>
+          <input id="room-name" name="name" maxlength="12" autocomplete="off" placeholder="例如：廚房、小孩房" aria-describedby="room-error">
+        </label>
+        <p class="field-error" id="room-error" role="alert"></p>
+        <fieldset class="picks">
+          <legend>放進這個房間的設備</legend>
+          <div class="pick-list" id="room-devices"></div>
+        </fieldset>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn danger" id="room-delete" hidden>刪除房間</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn" id="room-cancel">取消</button>
+        <button type="submit" class="btn primary" id="room-save">新增</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="mock-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

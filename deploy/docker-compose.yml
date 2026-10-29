@@ -1,0 +1,12 @@
+# Hearth 控制面板（靜態網頁）
+# 在伺服器上：cd ~/hearth/deploy && docker compose up -d
+services:
+  hearth-web:
+    image: nginx:1.27-alpine
+    container_name: hearth-web
+    restart: unless-stopped
+    ports:
+      - "8770:80"
+    volumes:
+      - ../dashboard:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
