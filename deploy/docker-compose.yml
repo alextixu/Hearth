@@ -1,5 +1,11 @@
-# Hearth 控制面板（靜態網頁）
+# Hearth：控制面板 + Home Assistant
 # 在伺服器上：cd ~/hearth/deploy && docker compose up -d
+#
+# 連接埠：
+#   8770  控制面板（nginx）
+#   8123  Home Assistant
+name: hearth
+
 services:
   hearth-web:
     image: nginx:1.27-alpine
@@ -10,3 +16,18 @@ services:
     volumes:
       - ../dashboard:/usr/share/nginx/html:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant
+    restart: unless-stopped
+    # host 網路：才能用 mDNS 找到 HomePod 等設備，HomeKit Bridge 也需要
+    network_mode: host
+    environment:
+      - TZ=Asia/Taipei
+    volumes:
+      # 設定與資料放在 ~/hearth/data，部署指令碼不會動到這裡
+      - ../data/homeassistant:/config
+      - /etc/localtime:/etc/localtime:ro
+      # 讓 HA 透過系統的 BlueZ 使用伺服器的藍牙網卡
+      - /run/dbus:/run/dbus:ro

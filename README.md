@@ -12,7 +12,7 @@
 
 ## 目前狀態
 
-控制面板已完成，但使用的是**模擬資料**，尚未串接真實設備。後端預計以 Home Assistant 為核心。
+控制面板已完成，但使用的是**模擬資料**，尚未串接真實設備。後端以 Home Assistant 為核心，與面板一起用 Docker 跑在家裡的 Linux 伺服器上。
 
 - 需求：[docs/requirements.md](docs/requirements.md)
 - 設備接法：[docs/integration-map.md](docs/integration-map.md)
@@ -34,7 +34,16 @@ python -m http.server 8770 --directory dashboard
 .\scripts\deploy.ps1 -Server <使用者>@<伺服器 IP>
 ```
 
-指令碼會把 `dashboard/` 與 `deploy/` 上傳到伺服器的 `~/hearth`，以 nginx 容器提供服務，連接埠 8770。
+指令碼會把 `dashboard/` 與 `deploy/` 上傳到伺服器的 `~/hearth`，並啟動兩個容器：
+
+| 服務 | 連接埠 | 說明 |
+|------|--------|------|
+| 控制面板（nginx） | 8770/tcp | `http://<伺服器 IP>:8770` |
+| Home Assistant | 8123/tcp | `http://<伺服器 IP>:8123`，使用 host 網路 |
+| mDNS 探索 | 5353/udp | Home Assistant 尋找 HomePod 等設備 |
+| HomeKit Bridge | 21064/tcp | 啟用 HomeKit Bridge 後，讓 Apple 家庭 / Siri 連線 |
+
+Home Assistant 的設定與資料存在伺服器的 `~/hearth/data/homeassistant`，重新部署不會刪除。
 
 ## 目錄
 

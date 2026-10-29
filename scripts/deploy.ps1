@@ -12,7 +12,9 @@ param(
   [string] $RemoteDir = '~/hearth'
 )
 
-$ErrorActionPreference = 'Stop'
+# 不用 'Stop'：Windows PowerShell 5.1 會把外部程式寫到 stderr 的進度訊息
+# （例如 docker 下載映像檔）當成錯誤而中斷。成敗一律看 $LASTEXITCODE。
+$ErrorActionPreference = 'Continue'
 $root = Split-Path -Parent $PSScriptRoot
 $archive = Join-Path $env:TEMP 'hearth-deploy.tgz'
 
@@ -28,16 +30,19 @@ Write-Host "上傳到 $Server ..."
 scp -q $archive "${Server}:/tmp/hearth-deploy.tgz"
 Invoke-Native '上傳'
 
-# 舊的 dashboard 整個換掉，再重建容器讓 bind mount 指到新目錄
+# 舊的 dashboard 整個換掉，再重建面板容器讓 bind mount 指到新目錄。
+# Home Assistant 的資料在 data/，不會被刪；它只在第一次部署時建立，之後不會因為部署而重啟。
 $remote = @"
 set -e
 command -v docker >/dev/null || { echo 'docker is not installed on the server' >&2; exit 1; }
-mkdir -p $RemoteDir
+mkdir -p $RemoteDir/data/homeassistant
 rm -rf $RemoteDir/dashboard $RemoteDir/deploy
 tar -xzf /tmp/hearth-deploy.tgz -C $RemoteDir
 rm -f /tmp/hearth-deploy.tgz
 cd $RemoteDir/deploy
-docker compose up -d --force-recreate
+docker compose pull --quiet
+docker compose up -d
+docker compose up -d --force-recreate --no-deps hearth-web
 docker compose ps
 "@ -replace "`r", ''
 
@@ -48,4 +53,5 @@ Invoke-Native '遠端部署'
 Remove-Item $archive -ErrorAction SilentlyContinue
 $hostOnly = ($Server -split '@')[-1]
 Write-Host ''
-Write-Host "完成：http://${hostOnly}:8770"
+Write-Host "控制面板：      http://${hostOnly}:8770"
+Write-Host "Home Assistant：http://${hostOnly}:8123（第一次啟動約需 1–3 分鐘）"
